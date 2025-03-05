@@ -45,16 +45,20 @@ Route::get('driver/dashboard', [driverController::class, 'index'])->middleware([
 Route::get('passenger/dashboard', [passengerController::class, 'index'])->middleware(['auth','ispassenger']);
 Route::get('passenger/activeride', [passengerController::class, 'activeride'])->middleware(['auth','ispassenger'])->name('active.ride');
 
+// test
+
+Route::get('passenger/test', [passengerController::class, 'test'])->middleware(['auth','ispassenger']);
 
 
-// Route::get('/auth/{provider}/redirect', [SocialiteController::class, 'redirect'])
-//     ->name('socialite.redirect');
-// Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback'])
-//     ->name('socialite.callback');
 
 
 Route::get('/auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback']);
 
-// Route::get('/auth/google', [GoogleLoginController::class, 'handleGoogleCallback'])->name('auth.google');
-// Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback']);
+
+// Route::get('testmail', function(){
+
+//     $name = "Quanta Pixel";
+
+//     Mail::to()
+// })
