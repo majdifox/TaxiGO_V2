@@ -101,7 +101,7 @@ class driverController extends Controller
             //     'vehicle' => $vehicle
             // ], 201);
             // return redirect(route{{'driver.index'}});
-            return redirect()->route('driver.index');
+            return redirect()->route('driver.under.review');
 
             
         } catch (\Exception $e) {
@@ -118,5 +118,9 @@ class driverController extends Controller
             return response()->json(['message' => 'Failed to create driver and vehicle', 'error' => $e->getMessage()], 500);
         }
        
+    }
+
+    public function underReview(){
+        return view('driver.underReview');
     }
 }

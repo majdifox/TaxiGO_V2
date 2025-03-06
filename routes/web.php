@@ -44,6 +44,7 @@ Route::get('driver/dashboard', [driverController::class, 'index'])->middleware([
 
 Route::get('driver/registration', [driverController::class, 'driverRegistration'])->middleware(['auth','isdriver'])->name('driverRegistration.create.');
 Route::post('driver', [driverController::class, 'driverRegistrationStore'])->middleware(['auth','isdriver'])->name('driver.store');
+Route::get('driver/under-review', [driverController::class, 'underReview'])->middleware(['auth','isdriver'])->name('driver.under.review');
 
 
 
