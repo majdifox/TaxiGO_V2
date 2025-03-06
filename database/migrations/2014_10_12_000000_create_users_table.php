@@ -22,7 +22,7 @@ return new class extends Migration
             $table->date('birthday')->nullable();
             $table->enum('role', ['driver', 'passenger', 'admin']);
             $table->boolean('is_online')->default(false);
-            $table->enum('account_status', ['active', 'suspended', 'deleted'])->default('suspended');
+            $table->enum('account_status', ['deactivated', 'pending', 'activated', 'suspended', 'deleted'])->default('deactivated');
             $table->decimal('total_income', 10, 2)->default(0);
             $table->rememberToken();
             $table->timestamps();

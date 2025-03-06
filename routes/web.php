@@ -40,14 +40,23 @@ require __DIR__.'/auth.php';
 
 Route::get('admin/dashboard', [HomeController::class, 'index'])->middleware(['auth','isadmin']);
 
-Route::get('driver/dashboard', [driverController::class, 'index'])->middleware(['auth','isdriver'])->name('driver.index');
+// Route::get('driver/dashboard', [driverController::class, 'index'])->middleware(['auth','isdriver'])->name('driver.index');
 
-Route::get('driver/registration', [driverController::class, 'driverRegistration'])->middleware(['auth','isdriver'])->name('driverRegistration.create.');
-Route::post('driver', [driverController::class, 'driverRegistrationStore'])->middleware(['auth','isdriver'])->name('driver.store');
-Route::get('driver/under-review', [driverController::class, 'underReview'])->middleware(['auth','isdriver'])->name('driver.under.review');
+// Route::get('driver/registration', [driverController::class, 'driverRegistration'])->middleware(['auth','isdriver'])->name('driverRegistration.create.');
+// Route::post('driver', [driverController::class, 'driverRegistrationStore'])->middleware(['auth','isdriver'])->name('driver.store');
+// Route::get('driver/under-review', [driverController::class, 'underReview'])->middleware(['auth','isdriver'])->name('driver.under.review');
+
+Route::get('/registration', [driverController::class, 'driverRegistration'])->middleware(['isdriver'])->name('driverRegistration.create');
+
+Route::post('/', [driverController::class, 'driverRegistrationStore'])->middleware(['isdriver'])->name('driver.store');
+Route::get('/under-review', [driverController::class, 'underReview'])->middleware(['isdriver'])->name('driver.under.review');
+Route::get('/dashboard', [driverController::class, 'index'])->middleware(['isdriver'])->name('driver.index');
+Route::get('/home', [driverController::class, 'home'])->middleware(['isdriver'])->name('home');
+Route::middleware(['auth'])->prefix('driver')->group(function () {
+  
 
 
-
+});
 
 
 

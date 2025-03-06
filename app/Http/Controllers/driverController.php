@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Driver;
+use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 
 class driverController extends Controller
@@ -25,13 +27,25 @@ class driverController extends Controller
     }
 
     public function driverRegistration(){
-
+        // If user is already pending or activated, redirect to appropriate page
+        if (Auth::user()->account_status === 'pending') {
+            return redirect()->route('driver.under.review');
+        }
+        
+        if (Auth::user()->account_status === 'activated') {
+            return redirect()->route('driver.index');
+        }
+        
         return view('driver.driverRegistration');
-
     }
 
     public function driverRegistrationStore(Request $request){
-        // dd($request);
+        // Prevent already pending or activated users from submitting again
+        if (in_array(Auth::user()->account_status, ['pending', 'activated'])) {
+            return redirect()->route(Auth::user()->account_status === 'pending' ? 'driver.under.review' : 'driver.index');
+        }
+        
+        // Validate request
         $validated = $request->validate([
             // Driver fields
             'user_id' => 'required|exists:users,id',
@@ -42,7 +56,7 @@ class driverController extends Controller
             // Vehicle fields
             'make' => 'required|string|max:255',
             'model' => 'required|string|max:255',
-            'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'year' => 'required|integer|min:2005|max:' . (date('Y') + 1),
             'color' => 'required|string|max:255',
             'plate_number' => 'required|string|max:255|unique:vehicles,plate_number',
             'type' => ['required', Rule::in(['share', 'comfort', 'Black', 'WAV'])],
@@ -93,16 +107,15 @@ class driverController extends Controller
             
             $vehicle = Vehicle::create($vehicleData);
             
+            // Update user's account status to 'pending'
+            $user = User::find($validated['user_id']);
+            $user->account_status = 'pending';
+            $user->save();
+            
             DB::commit();
             
-            // return response()->json([
-            //     'message' => 'Driver and vehicle created successfully',
-            //     'driver' => $driver,
-            //     'vehicle' => $vehicle
-            // ], 201);
-            // return redirect(route{{'driver.index'}});
+            // Redirect to the under review page
             return redirect()->route('driver.under.review');
-
             
         } catch (\Exception $e) {
             DB::rollBack();
@@ -117,10 +130,26 @@ class driverController extends Controller
             
             return response()->json(['message' => 'Failed to create driver and vehicle', 'error' => $e->getMessage()], 500);
         }
-       
     }
 
     public function underReview(){
-        return view('driver.underReview');
+        // Get current authenticated user's status
+        $status = Auth::user()->account_status;
+        
+        // Show different messages based on account status
+        $title = 'Your Account is Under Review';
+        $message = 'Thank you for registering as a driver with inTime. Our team is currently reviewing your documents and vehicle information.';
+        
+        if ($status === 'deactivated') {
+            // User with deactivated status should be redirected to registration
+            return redirect()->route('driverRegistration.create');
+        } else if ($status === 'activated') {
+            // User with activated status should be redirected to dashboard
+            return redirect()->route('driver.index');
+        } else if ($status === 'suspended' || $status === 'deleted') {
+            return redirect()->route('home')->with('error', 'Your account has been ' . $status . '. Please contact support for assistance.');
+        }
+        
+        return view('driver.underReview', compact('title', 'message', 'status'));
     }
 }
