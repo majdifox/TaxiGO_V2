@@ -17,10 +17,4 @@ class passengerController extends Controller
         return view('passenger.activeRide');
 
     }
-
-    public function test(){
-
-        return view('passenger.activeRide');
-
-    }
 }

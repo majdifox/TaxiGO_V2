@@ -40,7 +40,15 @@ require __DIR__.'/auth.php';
 
 Route::get('admin/dashboard', [HomeController::class, 'index'])->middleware(['auth','isadmin']);
 
-Route::get('driver/dashboard', [driverController::class, 'index'])->middleware(['auth','isdriver']);
+Route::get('driver/dashboard', [driverController::class, 'index'])->middleware(['auth','isdriver'])->name('driver.index');
+
+Route::get('driver/registration', [driverController::class, 'driverRegistration'])->middleware(['auth','isdriver'])->name('driverRegistration.create.');
+Route::post('driver', [driverController::class, 'driverRegistrationStore'])->middleware(['auth','isdriver'])->name('driver.store');
+
+
+
+
+
 
 Route::get('passenger/dashboard', [passengerController::class, 'index'])->middleware(['auth','ispassenger']);
 Route::get('passenger/activeride', [passengerController::class, 'activeride'])->middleware(['auth','ispassenger'])->name('active.ride');
@@ -49,6 +57,9 @@ Route::get('passenger/activeride', [passengerController::class, 'activeride'])->
 
 Route::get('passenger/test', [passengerController::class, 'test'])->middleware(['auth','ispassenger']);
 
+Route::get('driver/test', [driverController::class, 'test'])->middleware(['auth','isdriver']);
+
+
 
 
 
@@ -56,9 +67,3 @@ Route::get('/auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->
 Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback']);
 
 
-// Route::get('testmail', function(){
-
-//     $name = "Quanta Pixel";
-
-//     Mail::to()
-// })

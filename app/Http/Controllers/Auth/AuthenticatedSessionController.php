@@ -12,6 +12,8 @@ use Illuminate\View\View;
 use App\Controllers\HomeController;
 use App\Controllers\driverController;
 use App\Controllers\passengerController;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\LoginNotificationMail;
 
 
 
@@ -31,24 +33,25 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
-
-        if($request->user()->role === 'admin'){
-
+    
+        // Send login notification email
+        $user = $request->user();
+        Mail::to($user->email)->send(new LoginNotificationMail($user));
+    
+        
+        if($user->role === 'admin'){
             return redirect('admin/dashboard');
         }
-
-        if($request->user()->role === 'driver'){
-
+    
+        if($user->role === 'driver'){
             return redirect('driver/dashboard');
         }
-
-        if($request->user()->role === 'passenger'){
-
+    
+        if($user->role === 'passenger'){
             return redirect('passenger/dashboard');
         }
-
+    
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
@@ -66,3 +69,5 @@ class AuthenticatedSessionController extends Controller
         return redirect('/');
     }
 }
+
+
