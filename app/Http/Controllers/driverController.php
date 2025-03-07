@@ -22,7 +22,7 @@ class driverController extends Controller
 
     public function test(){
 
-        return view('driver.driverRegistration');
+        return view('driver.attentionNeeded');
 
     }
 

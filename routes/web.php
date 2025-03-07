@@ -1,34 +1,38 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\driverController;
-use App\Http\Controllers\passengerController;
-
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TripController;
+use App\Http\Controllers\AvailabilityController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\GoogleLoginController;
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ReviewController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('dashboard');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
+
+// Trips
+Route::resource('trips', TripController::class)->middleware(['auth']);
+Route::patch('/trips/{trip}/update-status', [TripController::class, 'updateStatus'])->name('trips.update-status');
+
+// Reviews
+Route::post('/trips/{trip}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+// Availability (for drivers)
+Route::resource('availability', AvailabilityController::class)->middleware(['auth', 'role:driver']);
+
+// Socialite Login
+Route::get('/auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback']);
+
+// Payment (Stripe)
+Route::get('/payment/{trip_id}/{price}', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
+Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -37,43 +41,3 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
-
-Route::get('admin/dashboard', [HomeController::class, 'index'])->middleware(['auth','isadmin']);
-
-// Route::get('driver/dashboard', [driverController::class, 'index'])->middleware(['auth','isdriver'])->name('driver.index');
-
-// Route::get('driver/registration', [driverController::class, 'driverRegistration'])->middleware(['auth','isdriver'])->name('driverRegistration.create.');
-// Route::post('driver', [driverController::class, 'driverRegistrationStore'])->middleware(['auth','isdriver'])->name('driver.store');
-// Route::get('driver/under-review', [driverController::class, 'underReview'])->middleware(['auth','isdriver'])->name('driver.under.review');
-
-Route::get('/registration', [driverController::class, 'driverRegistration'])->middleware(['isdriver'])->name('driverRegistration.create');
-
-Route::post('/', [driverController::class, 'driverRegistrationStore'])->middleware(['isdriver'])->name('driver.store');
-Route::get('/under-review', [driverController::class, 'underReview'])->middleware(['isdriver'])->name('driver.under.review');
-Route::get('/dashboard', [driverController::class, 'index'])->middleware(['isdriver'])->name('driver.index');
-Route::get('/home', [driverController::class, 'home'])->middleware(['isdriver'])->name('home');
-Route::middleware(['auth'])->prefix('driver')->group(function () {
-  
-
-
-});
-
-
-
-Route::get('passenger/dashboard', [passengerController::class, 'index'])->middleware(['auth','ispassenger']);
-Route::get('passenger/activeride', [passengerController::class, 'activeride'])->middleware(['auth','ispassenger'])->name('active.ride');
-
-// test
-
-Route::get('passenger/test', [passengerController::class, 'test'])->middleware(['auth','ispassenger']);
-
-Route::get('driver/test', [driverController::class, 'test'])->middleware(['auth','isdriver']);
-
-
-
-
-
-Route::get('/auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback']);
-
-

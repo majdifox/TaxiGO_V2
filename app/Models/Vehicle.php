@@ -25,5 +25,18 @@ class Vehicle extends Model
         'vehicle_photo',
         'insurance_expiry',
         'registration_expiry',
+        'is_active',
     ];
+    protected $casts = [
+        'year' => 'integer',
+        'capacity' => 'integer',
+        'insurance_expiry' => 'date',
+        'registration_expiry' => 'date',
+        'is_active' => 'boolean',
+    ];
+
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class);
+    }
 }

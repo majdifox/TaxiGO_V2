@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
-use App\Controllers\HomeController;
 
 class RegisteredUserController extends Controller
 {
@@ -33,33 +31,31 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
-        'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        'phone' => ['required', 'string', 'unique:users'],
-        'role' => ['required', 'in:driver,passenger'],
-        'birthday' => ['nullable', 'date'],
-        'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // Max 2MB
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'role' => ['required', 'in:passenger,driver'],
+            'profile_photo' => ['nullable', 'image', 'max:2048'],
         ]);
-
-        $profilePicturePath = null;
-    if ($request->hasFile('profile_picture')) {
-        $profilePicturePath = $request->file('profile_picture')->store('profile_pictures', 'public');
-    }
-
+    
+        $profilePhotoPath = null;
+        if ($request->hasFile('profile_photo')) {
+            $profilePhotoPath = $request->file('profile_photo')->store('profile_photos', 'public');
+        }
+    
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'phone' => $request->phone,
+            'password' => $request->password ? Hash::make($request->password) : null,
+            'profile_photo' => $profilePhotoPath,
             'role' => $request->role,
-            'birthday' => $request->birthday,
-            'profile_picture' => $profilePicturePath,
+            'phone' => $request->phone,
         ]);
-
+    
         event(new Registered($user));
-
+    
         Auth::login($user);
-
-        return redirect(RouteServiceProvider::HOME);
+    
+        return redirect(route('dashboard', absolute: false));
     }
 }

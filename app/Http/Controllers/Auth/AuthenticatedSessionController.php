@@ -4,18 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use App\Controllers\HomeController;
-use App\Controllers\driverController;
-use App\Controllers\passengerController;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\LoginNotificationMail;
-
-
 
 class AuthenticatedSessionController extends Controller
 {
@@ -33,26 +25,10 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
+
         $request->session()->regenerate();
-    
-        // Send login notification email
-        $user = $request->user();
-        Mail::to($user->email)->send(new LoginNotificationMail($user));
-    
-        
-        if($user->role === 'admin'){
-            return redirect('admin/dashboard');
-        }
-    
-        if($user->role === 'driver'){
-            return redirect('driver/dashboard');
-        }
-    
-        if($user->role === 'passenger'){
-            return redirect('passenger/dashboard');
-        }
-    
-        return redirect()->intended(RouteServiceProvider::HOME);
+
+        return redirect()->intended(route('dashboard', absolute: false));
     }
 
     /**
@@ -69,5 +45,3 @@ class AuthenticatedSessionController extends Controller
         return redirect('/');
     }
 }
-
-
